@@ -273,6 +273,8 @@ class CartScreen(Screen):
         self.scroll.add_widget(self.cart_box)
         self.layout.add_widget(Label(text='Carrito de compras'))
         self.layout.add_widget(self.scroll)
+        self.total_label = Label(text='Total: $0.00', font_size=18)
+        self.layout.add_widget(self.total_label)
         self.layout.add_widget(Button(text='Volver', on_press=self.go_back))
         self.add_widget(self.layout)
         self.cart = []
@@ -280,6 +282,7 @@ class CartScreen(Screen):
     def update_cart(self, cart):
         self.cart = cart
         self.cart_box.clear_widgets()
+        total = 0
         for idx, prod in enumerate(self.cart):
             box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
             box.add_widget(Label(text=prod['Name']))
@@ -288,6 +291,11 @@ class CartScreen(Screen):
             del_btn.bind(on_press=lambda inst, i=idx: self.remove_from_cart(i))
             box.add_widget(del_btn)
             self.cart_box.add_widget(box)
+            try:
+                total += float(prod['Price'])
+            except Exception:
+                pass
+        self.total_label.text = f"Total: ${total:.2f}"
 
     def remove_from_cart(self, index):
         if 0 <= index < len(self.cart):
