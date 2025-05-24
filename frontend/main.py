@@ -80,14 +80,20 @@ class ProductScreen(Screen):
         categories = r_cat.json() if r_cat.status_code == 200 else []
         cat_dict = {cat['CategoryID']: cat['Name'] for cat in categories}
         for prod in products:
-            box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-            box.add_widget(Label(text=prod['Name']))
-            box.add_widget(Label(text=f"${prod['Price']}"))
-            add_btn = Button(text='Agregar al carrito', size_hint_x=None, width=140)
+            box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40, spacing=10)
+            # Nombre y precio más cerca y compactos
+            box.add_widget(Label(text=prod['Name'], size_hint_x=0.35))
+            box.add_widget(Label(text=f"${prod['Price']}", size_hint_x=0.18))
+            # Botón "Agregar al carrito" más largo
+            add_btn = Button(text='Agregar al carrito', size_hint_x=0.32, width=180)
             add_btn.bind(on_press=lambda inst, p=prod: self.add_to_cart(p))
-            details_btn = Button(text='Ver detalles', size_hint_x=None, width=120)
-            details_btn.bind(on_press=lambda inst, p=prod: self.show_details(p, cat_dict))
             box.add_widget(add_btn)
+            # Espaciador entre botones
+            from kivy.uix.widget import Widget
+            box.add_widget(Widget(size_hint_x=0.03))
+            # Botón "Ver detalles"
+            details_btn = Button(text='Ver detalles', size_hint_x=0.12, width=100)
+            details_btn.bind(on_press=lambda inst, p=prod: self.show_details(p, cat_dict))
             box.add_widget(details_btn)
             self.products_box.add_widget(box)
 
