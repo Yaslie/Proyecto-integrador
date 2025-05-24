@@ -22,7 +22,7 @@ def register():
     data = request.json
     cursor = mysql.connection.cursor()
     cursor.execute('INSERT INTO Users (Username, Email, Password, Role) VALUES (%s, %s, %s, %s)',
-                   (data['username'], data['email'], data['password'], data.get('role', 'buyer')))
+                (data['username'], data['email'], data['password'], data.get('role', 'buyer')))
     mysql.connection.commit()
     return jsonify({'msg': 'Usuario registrado'}), 201
 
