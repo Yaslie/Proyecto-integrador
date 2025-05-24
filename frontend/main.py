@@ -63,32 +63,45 @@ class ProductScreen(Screen):
         self.products_box = BoxLayout(orientation='vertical', size_hint_y=None)
         self.products_box.bind(minimum_height=self.products_box.setter('height'))
         self.scroll.add_widget(self.products_box)
-        self.layout.add_widget(Label(text='Productos disponibles'))
+        self.layout.add_widget(Label(text='Productos disponibles', font_size=22))
         self.layout.add_widget(self.scroll)
-        # Botones inferiores con altura fija
-        btn_carrito = Button(text='Ver carrito', size_hint_y=None, height=50)
-        btn_carrito.bind(on_press=self.go_cart)
-        btn_vendedor = Button(text='Modo vendedor', size_hint_y=None, height=50)
-        btn_vendedor.bind(on_press=self.go_seller)
-        btn_chatbot = Button(text='Chatbot', size_hint_y=None, height=50)
-        btn_chatbot.bind(on_press=self.go_chatbot)
-        self.layout.add_widget(btn_carrito)
-        self.layout.add_widget(btn_vendedor)
-        self.layout.add_widget(btn_chatbot)
+        self.layout.add_widget(Button(text='Ver carrito', on_press=self.go_cart, size_hint_y=None, height=40))
+        self.layout.add_widget(Button(text='Modo vendedor', on_press=self.go_seller, size_hint_y=None, height=40))
+        self.layout.add_widget(Button(text='Chatbot', on_press=self.go_chatbot, size_hint_y=None, height=40))
         self.add_widget(self.layout)
 
     def load_products(self):
         self.products_box.clear_widgets()
+        # Obtener productos
         r = requests.get(f"{API_URL}/products")
-        if r.status_code == 200:
-            for prod in r.json():
-                box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-                box.add_widget(Label(text=prod['Name']))
-                box.add_widget(Label(text=f"${prod['Price']}"))
-                add_btn = Button(text='Agregar al carrito')
-                add_btn.bind(on_press=lambda inst, p=prod: self.add_to_cart(p))
-                box.add_widget(add_btn)
-                self.products_box.add_widget(box)
+        products = r.json() if r.status_code == 200 else []
+        # Obtener categorías para mostrar el nombre en el popup
+        r_cat = requests.get(f"{API_URL}/categories")
+        categories = r_cat.json() if r_cat.status_code == 200 else []
+        cat_dict = {cat['CategoryID']: cat['Name'] for cat in categories}
+        for prod in products:
+            box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
+            box.add_widget(Label(text=prod['Name']))
+            box.add_widget(Label(text=f"${prod['Price']}"))
+            add_btn = Button(text='Agregar al carrito', size_hint_x=None, width=140)
+            add_btn.bind(on_press=lambda inst, p=prod: self.add_to_cart(p))
+            details_btn = Button(text='Ver detalles', size_hint_x=None, width=120)
+            details_btn.bind(on_press=lambda inst, p=prod: self.show_details(p, cat_dict))
+            box.add_widget(add_btn)
+            box.add_widget(details_btn)
+            self.products_box.add_widget(box)
+
+    def show_details(self, product, cat_dict):
+        # Obtener reseñas
+        r = requests.get(f"{API_URL}/reviews/{product['ProductID']}")
+        reviews = r.json() if r.status_code == 200 else []
+        review_text = "\n".join([f"⭐{rev['Rating']}: {rev['Comment']}" for rev in reviews]) or "Sin reseñas"
+        categoria = cat_dict.get(product['CategoryID'], "Sin categoría")
+        content = BoxLayout(orientation='vertical')
+        content.add_widget(Label(text=f"[b]{product['Name']}[/b]\n\nCategoría: {categoria}\n\n{product['Description']}", markup=True))
+        content.add_widget(Label(text=f"\n[b]Reseñas:[/b]\n{review_text}", markup=True))
+        popup = Popup(title='Detalles del producto', content=content, size_hint=(0.7, 0.7))
+        popup.open()
 
     def add_to_cart(self, product):
         self.cart.append(product)

@@ -118,5 +118,19 @@ def modify_product(product_id):
     mysql.connection.commit()
     return jsonify({'msg': 'Producto modificado'}), 200
 
+@app.route('/categories', methods=['GET'])
+def get_categories():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM Categories')
+    categories = cursor.fetchall()
+    return jsonify(categories)
+
+@app.route('/reviews/<int:product_id>', methods=['GET'])
+def get_reviews(product_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM Reviews WHERE ProductID=%s', (product_id,))
+    reviews = cursor.fetchall()
+    return jsonify(reviews)
+
 if __name__ == '__main__':
     app.run(debug=True)
