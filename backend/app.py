@@ -3,6 +3,7 @@ from flask_mysqldb import MySQL
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import MySQLdb.cursors
+import requests  # Asegúrate de importar requests
 
 app = Flask(__name__)
 CORS(app)
@@ -58,14 +59,29 @@ def add_product():
 
 # Modificar producto
 @app.route('/products/<int:product_id>', methods=['PUT'])
-@jwt_required()
 def update_product(product_id):
     data = request.json
     cursor = mysql.connection.cursor()
-    cursor.execute('UPDATE Products SET Name=%s, Description=%s, Price=%s, Stock=%s, CategoryID=%s, usuario_modificacion=%s WHERE ProductID=%s',
-                   (data['name'], data['description'], data['price'], data['stock'], data['category_id'], data['usuario_modificacion'], product_id))
+    cursor.execute('''
+        UPDATE Products SET 
+            Name=%s, 
+            Description=%s, 
+            Price=%s, 
+            Stock=%s, 
+            CategoryID=%s, 
+            usuario_modificacion=%s
+        WHERE ProductID=%s
+    ''', (
+        data['name'],
+        data['description'],
+        data['price'],
+        data['stock'],
+        data['category_id'],
+        data['usuario_modificacion'],
+        product_id
+    ))
     mysql.connection.commit()
-    return jsonify({'msg': 'Producto actualizado'})
+    return jsonify({'msg': 'Producto actualizado'}), 200
 
 # Eliminar producto
 @app.route('/products/<int:product_id>', methods=['DELETE'])
@@ -75,6 +91,32 @@ def delete_product(product_id):
     cursor.execute('DELETE FROM Products WHERE ProductID=%s', (product_id,))
     mysql.connection.commit()
     return jsonify({'msg': 'Producto eliminado'})
+
+# Endpoint para modificar producto desde el cliente
+@app.route('/modify_product/<int:product_id>', methods=['PUT'])
+def modify_product(product_id):
+    data = request.json
+    cursor = mysql.connection.cursor()
+    cursor.execute('''
+        UPDATE Products SET 
+            Name=%s, 
+            Description=%s, 
+            Price=%s, 
+            Stock=%s, 
+            CategoryID=%s, 
+            usuario_modificacion=%s
+        WHERE ProductID=%s
+    ''', (
+        data['name'],
+        data['description'],
+        data['price'],
+        data['stock'],
+        data['category_id'],
+        data['usuario_modificacion'],
+        product_id
+    ))
+    mysql.connection.commit()
+    return jsonify({'msg': 'Producto modificado'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
