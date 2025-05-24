@@ -126,30 +126,38 @@ class ProductScreen(Screen):
         super().__init__(**kwargs)
         self.cart = []
         self.layout = BoxLayout(orientation='vertical', padding=30, spacing=15)
-        self.layout.add_widget(Label(text='[b]Productos disponibles[/b]', markup=True, font_size=24, color=get_rgb(PRIMARY)))
+        self.layout.add_widget(Label(text='[b]Productos disponibles[/b]', markup=True, font_size=24, color=get_rgb(TEXT), size_hint_y=None, height=40))
         self.scroll = ScrollView()
         self.products_box = BoxLayout(orientation='vertical', size_hint_y=None, spacing=10)
         self.products_box.bind(minimum_height=self.products_box.setter('height'))
         self.scroll.add_widget(self.products_box)
         self.layout.add_widget(self.scroll)
-        btns = BoxLayout(orientation='horizontal', size_hint_y=None, height=85, spacing=15, padding=10)
-        btn_carrito = Button(text='Ver carrito', font_size=16, on_press=self.go_cart)
-        btn_carrito.background_color = get_rgb(PRIMARY)
-        btn_carrito.color = get_rgb(BACKGROUND)
+        btns = BoxLayout(orientation='vertical', size_hint_y=None, height=160, spacing=12, padding=0)
+        
+        btn_carrito = Button(
+            text='Ver carrito', font_size=16, size_hint_y=None, height=60,
+            background_normal='', background_color=get_rgb("#B7D7A8"), color=(1,1,1,1), bold=True
+        )
+        btn_carrito.bind(on_press=self.go_cart)
         btns.add_widget(btn_carrito)
 
-        btn_vendedor = Button(text='Modo vendedor', font_size=16, on_press=self.go_seller)
-        btn_vendedor.background_color = get_rgb(SECONDARY)
-        btn_vendedor.color = get_rgb(TEXT)
+        btn_vendedor = Button(
+            text='Modo vendedor', font_size=16, size_hint_y=None, height=60,
+            background_normal='', background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY)
+        )
+        btn_vendedor.bind(on_press=self.go_seller)
         btns.add_widget(btn_vendedor)
 
-        btn_chatbot = Button(text='Chatbot', font_size=16, on_press=self.go_chatbot)
-        btn_chatbot.background_color = get_rgb(BACKGROUND)
-        btn_chatbot.color = get_rgb(PRIMARY)
+        btn_chatbot = Button(
+            text='Chatbot', font_size=16, size_hint_y=None, height=60,
+            background_normal='', background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY)
+        )
+        btn_chatbot.bind(on_press=self.go_chatbot)
         btns.add_widget(btn_chatbot)
+
         self.layout.add_widget(btns)
         self.add_widget(self.layout)
-        style_widget(self.layout, bg=BACKGROUND, radius=0)
+        style_widget(self.layout, bg="#C7D8B6", radius=0)
 
     def load_products(self):
         self.products_box.clear_widgets()
@@ -162,12 +170,18 @@ class ProductScreen(Screen):
             box = BoxLayout(orientation='horizontal', size_hint_y=None, height=50, spacing=12, padding=8)
             box.add_widget(Label(text=prod['Name'], size_hint_x=0.35, font_size=18, color=get_rgb(TEXT)))
             box.add_widget(Label(text=f"${prod['Price']}", size_hint_x=0.18, font_size=18, color=get_rgb(TEXT)))
-            add_btn = Button(text='Agregar al carrito', size_hint_x=0.32, width=180, background_color=get_rgb(PRIMARY), color=get_rgb(BACKGROUND), font_size=16)
+            add_btn = Button(
+                text='Agregar al carrito', size_hint_x=0.32, width=180,
+                background_normal='', background_color=get_rgb("#B7D7A8"), color=(1,1,1,1), font_size=16, bold=True
+            )
             add_btn.bind(on_press=lambda inst, p=prod: self.add_to_cart(p))
             box.add_widget(add_btn)
             from kivy.uix.widget import Widget
             box.add_widget(Widget(size_hint_x=0.03))
-            details_btn = Button(text='Ver detalles', size_hint_x=0.12, width=100, background_color=get_rgb(SECONDARY), color=get_rgb(TEXT), font_size=16)
+            details_btn = Button(
+                text='Ver detalles', size_hint_x=0.12, width=100,
+                background_normal='', background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY), font_size=16
+            )
             details_btn.bind(on_press=lambda inst, p=prod: self.show_details(p, cat_dict))
             box.add_widget(details_btn)
             style_widget(box, bg=SECONDARY, radius=12)
@@ -179,8 +193,8 @@ class ProductScreen(Screen):
         review_text = "\n".join([f"⭐{rev['Rating']}: {rev['Comment']}" for rev in reviews]) or "Sin reseñas"
         categoria = cat_dict.get(product['CategoryID'], "Sin categoría")
         content = BoxLayout(orientation='vertical', padding=20, spacing=10)
-        content.add_widget(Label(text=f"[b]{product['Name']}[/b]\n\nCategoría: {categoria}\n\n{product['Description']}", markup=True, font_size=18, color=get_rgb(TEXT)))
-        content.add_widget(Label(text=f"\n[b]Reseñas:[/b]\n{review_text}", markup=True, font_size=16, color=get_rgb(TEXT)))
+        content.add_widget(Label(text=f"[b]{product['Name']}[/b]\n\nCategoría: {categoria}\n\n{product['Description']}", markup=True, font_size=18, color=get_rgb(BACKGROUND)))
+        content.add_widget(Label(text=f"\n[b]Reseñas:[/b]\n{review_text}", markup=True, font_size=16, color=get_rgb(BACKGROUND)))
         popup = Popup(title='Detalles del producto', content=content, size_hint=(0.7, 0.7), background_color=get_rgb(BACKGROUND))
         popup.open()
 
@@ -205,21 +219,24 @@ class SellerScreen(Screen):
         self.layout = BoxLayout(orientation='vertical', padding=30, spacing=15)
         self.form_box = BoxLayout(orientation='vertical', size_hint_y=None, height=350, spacing=10)
         self.form_box.add_widget(Label(text='Nombre', font_size=18, color=get_rgb(TEXT)))
-        self.name_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=SECONDARY, foreground_color=TEXT)
+        self.name_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=(1,1,1,1), foreground_color=get_rgb(TEXT))
         self.form_box.add_widget(self.name_input)
         self.form_box.add_widget(Label(text='Descripción', font_size=18, color=get_rgb(TEXT)))
-        self.desc_input = TextInput(font_size=18, size_hint_y=None, height=80, background_color=SECONDARY, foreground_color=TEXT)
+        self.desc_input = TextInput(font_size=18, size_hint_y=None, height=80, background_color=(1,1,1,1), foreground_color=get_rgb(TEXT))
         self.form_box.add_widget(self.desc_input)
         self.form_box.add_widget(Label(text='Precio', font_size=18, color=get_rgb(TEXT)))
-        self.price_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=SECONDARY, foreground_color=TEXT)
+        self.price_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=(1,1,1,1), foreground_color=get_rgb(TEXT))
         self.form_box.add_widget(self.price_input)
         self.form_box.add_widget(Label(text='Stock', font_size=18, color=get_rgb(TEXT)))
-        self.stock_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=SECONDARY, foreground_color=TEXT)
+        self.stock_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=(1,1,1,1), foreground_color=get_rgb(TEXT))
         self.form_box.add_widget(self.stock_input)
         self.form_box.add_widget(Label(text='ID Categoría', font_size=18, color=get_rgb(TEXT)))
-        self.cat_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=SECONDARY, foreground_color=TEXT)
+        self.cat_input = TextInput(font_size=18, size_hint_y=None, height=40, background_color=(1,1,1,1), foreground_color=get_rgb(TEXT))
         self.form_box.add_widget(self.cat_input)
-        self.save_btn = Button(text='Agregar producto', on_press=self.save_product, size_hint_y=None, height=45, background_color=get_rgb(PRIMARY), color=get_rgb(BACKGROUND), font_size=18)
+        self.save_btn = Button(
+            text='Agregar producto', on_press=self.save_product, size_hint_y=None, height=45,
+            background_normal='', background_color=get_rgb("#B7D7A8"), color=(1,1,1,1), font_size=18, bold=True
+        )
         self.form_box.add_widget(self.save_btn)
         self.layout.add_widget(self.form_box)
         self.layout.add_widget(Label(text='Tus productos', font_size=20, color=get_rgb(PRIMARY)))
@@ -228,9 +245,12 @@ class SellerScreen(Screen):
         self.products_box.bind(minimum_height=self.products_box.setter('height'))
         self.scroll.add_widget(self.products_box)
         self.layout.add_widget(self.scroll)
-        self.layout.add_widget(Button(text='Volver', on_press=self.go_back, size_hint_y=None, height=50, background_color=get_rgb(SECONDARY), color=get_rgb(TEXT), font_size=18))
+        self.layout.add_widget(Button(
+            text='Volver', on_press=self.go_back, size_hint_y=None, height=50,
+            background_normal='', background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY), font_size=18
+        ))
         self.add_widget(self.layout)
-        style_widget(self.layout, bg=BACKGROUND, radius=0)
+        style_widget(self.layout, bg="#C7D8B6", radius=0)
 
     def on_pre_enter(self):
         self.load_products()
@@ -251,11 +271,15 @@ class SellerScreen(Screen):
         if r.status_code == 200:
             for prod in r.json():
                 box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-                box.add_widget(Label(text=prod['Name']))
-                box.add_widget(Label(text=f"${prod['Price']}"))
-                edit_btn = Button(text='Editar', size_hint_x=None, width=80)
+                box.add_widget(Label(text=prod['Name'], color=get_rgb(TEXT)))
+                box.add_widget(Label(text=f"${prod['Price']}", color=get_rgb(TEXT)))
+                edit_btn = Button(
+                    text='Editar', size_hint_x=None, width=80,
+                    background_normal='', background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY)
+                )
                 edit_btn.bind(on_press=lambda inst, p=prod: self.edit_product(p))
                 box.add_widget(edit_btn)
+                style_widget(box, bg=SECONDARY, radius=12)
                 self.products_box.add_widget(box)
 
     def save_product(self, instance):
@@ -327,10 +351,16 @@ class ChatbotScreen(Screen):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical', padding=30, spacing=15)
         layout.add_widget(Label(text='Soporte Chatbot', font_size=22, color=get_rgb(PRIMARY)))
-        layout.add_widget(Button(text='Abrir Chatbot', on_press=self.open_chatbot, background_color=get_rgb(PRIMARY), color=get_rgb(BACKGROUND), font_size=18, size_hint_y=None, height=45))
-        layout.add_widget(Button(text='Volver', on_press=self.go_back, background_color=get_rgb(SECONDARY), color=get_rgb(TEXT), font_size=18, size_hint_y=None, height=45))
+        layout.add_widget(Button(
+            text='Abrir Chatbot', on_press=self.open_chatbot, background_normal='',
+            background_color=get_rgb("#B7D7A8"), color=(1,1,1,1), font_size=18, size_hint_y=None, height=45, bold=True
+        ))
+        layout.add_widget(Button(
+            text='Volver', on_press=self.go_back, background_normal='',
+            background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY), font_size=18, size_hint_y=None, height=45
+        ))
         self.add_widget(layout)
-        style_widget(layout, bg=BACKGROUND, radius=0)
+        style_widget(layout, bg="#C7D8B6", radius=0)
 
     def open_chatbot(self, instance):
         webbrowser.open("https://widget.kommunicate.io/chat?appId=2020521d2025ab5eaa00a302db60492de")
@@ -350,10 +380,13 @@ class CartScreen(Screen):
         self.layout.add_widget(self.scroll)
         self.total_label = Label(text='Total: $0.00', font_size=18, color=get_rgb(TEXT))
         self.layout.add_widget(self.total_label)
-        self.layout.add_widget(Button(text='Volver', on_press=self.go_back, background_color=get_rgb(SECONDARY), color=get_rgb(TEXT), font_size=18, size_hint_y=None, height=45))
+        self.layout.add_widget(Button(
+            text='Volver', on_press=self.go_back, background_normal='',
+            background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY), font_size=18, size_hint_y=None, height=45
+        ))
         self.add_widget(self.layout)
         self.cart = []
-        style_widget(self.layout, bg=BACKGROUND, radius=0)
+        style_widget(self.layout, bg="#C7D8B6", radius=0)
 
     def update_cart(self, cart):
         self.cart = cart
@@ -361,11 +394,15 @@ class CartScreen(Screen):
         total = 0
         for idx, prod in enumerate(self.cart):
             box = BoxLayout(orientation='horizontal', size_hint_y=None, height=40)
-            box.add_widget(Label(text=prod['Name']))
-            box.add_widget(Label(text=f"${prod['Price']}"))
-            del_btn = Button(text='Eliminar')
+            box.add_widget(Label(text=prod['Name'], color=get_rgb(TEXT)))
+            box.add_widget(Label(text=f"${prod['Price']}", color=get_rgb(TEXT)))
+            del_btn = Button(
+                text='Eliminar', background_normal='',
+                background_color=get_rgb("#F5FFF5"), color=get_rgb(PRIMARY)
+            )
             del_btn.bind(on_press=lambda inst, i=idx: self.remove_from_cart(i))
             box.add_widget(del_btn)
+            style_widget(box, bg=SECONDARY, radius=12)
             self.cart_box.add_widget(box)
             try:
                 total += float(prod['Price'])
